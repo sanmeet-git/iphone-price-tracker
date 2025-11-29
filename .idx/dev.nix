@@ -1,56 +1,53 @@
-# To learn more about how to use Nix to configure your environment
-# see: https://developers.google.com/idx/guides/customize-idx-env
+# .idx/dev.nix - Version 4.0 (Final Missing Pieces)
 { pkgs, ... }: {
-  # Which nixpkgs channel to use.
-  channel = "stable-25.05"; # or "unstable"
-  # Use https://search.nixos.org/packages to find packages
+  channel = "stable-24.05"; 
+
   packages = [
-    # pkgs.go
-    pkgs.python314
-    pkgs.uv
-    # pkgs.python311Packages.pip
-    # pkgs.nodejs_20
-    # pkgs.nodePackages.nodemon
+    # 1. Python Tools
+    pkgs.python3
+    pkgs.python3Packages.pip
+    pkgs.python3Packages.virtualenv
+    
+    # 2. System Libraries (The "Bones")
+    pkgs.glib
+    pkgs.nss
+    pkgs.nspr
+    pkgs.dbus
+    pkgs.atk
+    pkgs.cups
+    pkgs.libdrm
+    pkgs.gtk3
+    pkgs.pango
+    pkgs.cairo
+    pkgs.gdk-pixbuf
+    pkgs.mesa
+    pkgs.alsa-lib
+    pkgs.at-spi2-atk
+    pkgs.at-spi2-core
+    
+    # 3. The XORG Libraries
+    pkgs.xorg.libX11
+    pkgs.xorg.libXcomposite
+    pkgs.xorg.libXdamage
+    pkgs.xorg.libXext
+    pkgs.xorg.libXfixes
+    pkgs.xorg.libXrandr
+    pkgs.xorg.libxcb
+    
+    # 4. The Final Missing Pieces (Found in error log)
+    pkgs.expat           # libexpat.so.1
+    pkgs.libxkbcommon    # libxkbcommon.so.0
+    pkgs.systemd         # libudev.so.1 (udev lives inside systemd)
   ];
-  # Sets environment variables in the workspace
-  env = {};
+
+  env = {
+    # This helps Python find the bones we just installed
+    LD_LIBRARY_PATH = "${pkgs.stdenv.cc.cc.lib}/lib";
+  };
+
   idx = {
-    # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
     extensions = [
-      # "vscodevim.vim"
-      "google.gemini-cli-vscode-ide-companion"
       "ms-python.python"
     ];
-    # Enable previews
-    previews = {
-      enable = true;
-      previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
-      };
-    };
-    # Workspace lifecycle hooks
-    workspace = {
-      # Runs when a workspace is first created
-      onCreate = {
-        # Example: install JS dependencies from NPM
-        # npm-install = "npm install";
-        # Open editors for the following files by default, if they exist:
-        default.openFiles = [ "README.md" ];
-      };
-      # Runs when the workspace is (re)started
-      onStart = {
-        # Example: start a background task to watch and re-build backend code
-        # watch-backend = "npm run watch-backend";
-      };
-    };
   };
 }
